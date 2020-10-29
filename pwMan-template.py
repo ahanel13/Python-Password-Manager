@@ -44,7 +44,7 @@ from Crypto.Protocol.KDF import PBKDF2
 
 passwordFile = "passwords"
 ##The salt value should be set here.
-salt = 
+salt = "ens2910s "
 ##The header of the file.
 head = " ____               __  __\n"+"|  _ \ __ _ ___ ___|  \/  | __ _ _ __  \n" +"| |_) / _` / __/ __| |\/| |/ _` | '_ \ \n" +"|  __/ (_| \__ \__ \ |  | | (_| | | | |\n" +"|_|   \__,_|___/___/_|  |_|\__,_|_| |_|\n"
 
@@ -59,24 +59,30 @@ def bytesToDict(dict):
 #reference 2
 def encrypt(dict, k):
 	##Define the encryption scheme here.
-	
+	cipher = AES.new(k, AES.MODE_EAX)
 	##Encrypt the dictionary value here.
-	
+	ciphertext, tag = cipher.encrypt_and_digest(dict)
 
 	with open(passwordFile, 'wb') as outfile:
 		[outfile.write(x) for x in (cipher.nonce, tag, ciphertext)]
+
 def decrypt(k):
 	with open(passwordFile, 'rb') as infile:
 		nonce, tag, ciphertext = [ infile.read(x) for x in (16, 16, -1) ]
 		##Define the encryption scheme here.
-	
+		cipher = AES.new(k, AES.MODE_EAX, nonce=nonce)
 		##Decrypt the ciphertext here.
-	
+		data = cipher.decrypt(ciphertext)
+		try:
+			cipher.verify(tag)
+			print("The message is authentic:", data)
+		except ValueError:
+			print("Key incorrect or message corrupted.")
 		return data
 
 def Main():
 
-	print("\n\n")
+	print("\n")
 	mpw = input("Enter Master Password: ")
 	k   = PBKDF2(mpw, salt, dkLen=32) # derive key from password
 	
@@ -101,7 +107,7 @@ def Main():
 			pws = bytesToDict(pws)
 
 		except Exception as e:
-			print("Wrong password")
+			print("Wrong password\n" + str(e))
 			return
 
 		# print value for  website or add new value
