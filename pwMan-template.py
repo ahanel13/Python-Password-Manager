@@ -75,7 +75,7 @@ def decrypt(k):
 		data = cipher.decrypt(ciphertext)
 		try:
 			cipher.verify(tag)
-			print("The message is authentic:", data)
+			print("The message is authentic.")
 		except ValueError:
 			print("Key incorrect or message corrupted.")
 		return data
