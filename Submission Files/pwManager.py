@@ -10,6 +10,7 @@
 	2.) https://pycryptodome.readthedocs.io/en/latest/src/protocol/kdf.html
 	3.) https://pycryptodome.readthedocs.io/en/latest/src/cipher/modern.html?highlight=encrypt_and_digest#encrypt_and_digest
 	4.) https://pycryptodome.readthedocs.io/en/latest/src/cipher/aes.html
+    5.) https://pynative.com/python-generate-random-string/ 
 
 	To run: (Python 2 will give errors if ran through Python 2)
 		python3 pwManager.py www.google.com
@@ -18,24 +19,28 @@
 		rm passwords
 
 	Example Output: 
-		Enter Master Password: 123
-		Loading database...
-		The message is authentic: b'{"": ""}'
-		No entry for www.test.com, creating new...
-		New entry - enter password for www.test.com: 123
-		stored
+        Enter Master Password: 123
+        No password database, creating....
+        Loading database...
+        The message is authentic
+        No entry for www.google.com, creating new...
+        Stored new password: "zfa4$i%\1ie>k["jWXMebL= for www.google.com
+        djb0286@cse05:~/CSCE3550/newPW$ python3 pwManager.py www.google.com
 
-		Enter Master Password: 123
-		Loading database...
-		The message is authentic: b'{"": "", "www.test.com": "123"}'
-		entry   : www.test.com
-		password: 123
+        Enter Master Password: 123
+        Loading database...
+        The message is authentic
+        entry   : www.google.com
+        password: "zfa4$i%\1ie>k["jWXMebL=
+        djb0286@cse05:~/CSCE3550/newPW$ python3 pwManager.py www.test.com
 '''
 
 import csv
 import os
 import sys
 import json
+import random
+import string
 from Cryptodome.Hash import SHA256
 from Cryptodome.Cipher import AES
 from Cryptodome.Random import get_random_bytes
@@ -47,6 +52,12 @@ passwordFile = "passwords"
 salt = "ens2910s"
 head = " ____               __  __\n" + "|  _ \ __ _ ___ ___|  \/  | __ _ _ __  \n" + "| |_) / _` / __/ __| |\/| |/ _` | '_ \ \n" + "|  __/ (_| \__ \__ \ |  | | (_| | | | |\n" + "|_|   \__,_|___/___/_|  |_|\__,_|_| |_|\n"
 
+
+# Reference #5, generates a random string of a given length, used for random password generation
+def get_random_string(length):
+    password_characters = string.ascii_letters + string.digits + string.punctuation
+    return (''.join(random.choice(password_characters) for i in range(length)))
+     
 
 # Reference 1 - From original provided code (Uses json to dump a dictionary as utf-8 byte information)
 def dictToBytes(dict):
@@ -123,10 +134,10 @@ def Main():
             print("password: " + str(pws[entry]))
         else:
             print("No entry for " + str(entry) + ", creating new...")
-            newPass = input("New entry - enter password for " + entry + ": ")
+            newPass = get_random_string(24)
             pws[entry] = newPass
             encrypt(dictToBytes(pws), k)
-            print("stored")
+            print(f"Stored new password: {newPass} for {entry}")
 
 # Redirects to main after printing the header.
 if __name__ == '__main__':
